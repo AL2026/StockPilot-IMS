@@ -1,0 +1,293 @@
+﻿@model InventoryManagementSystem.Models.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="mb-4">
+    <h1 class="h3 mb-1">Inventory Dashboard</h1>
+    <p class="text-muted mb-0">A snapshot of your stock, purchases and sales.</p>
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-6 col-lg-3">
+        <a asp-controller="Products" asp-action="Index" class="text-decoration-none">
+            <div class="card stat-card bg-gradient-indigo">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Total Products</div>
+                        <div class="stat-value">@Model.TotalProducts</div>
+                    </div>
+                    <i class="bi bi-box-seam stat-icon"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <a asp-controller="Categories" asp-action="Index" class="text-decoration-none">
+            <div class="card stat-card bg-gradient-sky">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Categories</div>
+                        <div class="stat-value">@Model.TotalCategories</div>
+                    </div>
+                    <i class="bi bi-tags stat-icon"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <a asp-controller="Suppliers" asp-action="Index" class="text-decoration-none">
+            <div class="card stat-card bg-gradient-teal">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Suppliers</div>
+                        <div class="stat-value">@Model.TotalSuppliers</div>
+                    </div>
+                    <i class="bi bi-truck stat-icon"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <a asp-controller="Products" asp-action="Index" class="text-decoration-none">
+            <div class="card stat-card bg-gradient-rose">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Low Stock</div>
+                        <div class="stat-value">@Model.LowStockProducts</div>
+                    </div>
+                    <i class="bi bi-exclamation-triangle stat-icon"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <a asp-controller="Purchases" asp-action="Index" class="text-decoration-none">
+            <div class="card stat-card bg-gradient-violet">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Purchases</div>
+                        <div class="stat-value">@Model.TotalPurchases</div>
+                    </div>
+                    <i class="bi bi-cart-plus stat-icon"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <a asp-controller="Sales" asp-action="Index" class="text-decoration-none">
+            <div class="card stat-card bg-gradient-green">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Sales</div>
+                        <div class="stat-value">@Model.TotalSales</div>
+                    </div>
+                    <i class="bi bi-cash-coin stat-icon"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card bg-gradient-amber">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Purchase Amount</div>
+                    <div class="stat-value">$@Model.TotalPurchaseAmount.ToString("N2")</div>
+                </div>
+                <i class="bi bi-currency-dollar stat-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card bg-gradient-slate">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Sales Amount</div>
+                    <div class="stat-value">$@Model.TotalSalesAmount.ToString("N2")</div>
+                </div>
+                <i class="bi bi-graph-up-arrow stat-icon"></i>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-3">
+
+    <div class="col-lg-6">
+        <div class="card section-card h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-triangle text-danger"></i> Low Stock Products
+            </div>
+            <div class="card-body p-0">
+                @if (Model.LowStockItems.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th class="text-end">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.LowStockItems)
+                            {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>@item.Category?.Name</td>
+                                    <td class="text-end">
+                                        <span class="badge bg-danger">@item.Quantity</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-check-circle"></i>
+                        All products are well stocked.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card section-card h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-cart-plus text-primary"></i> Latest Purchases
+            </div>
+            <div class="card-body p-0">
+                @if (Model.LatestPurchases.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Supplier</th>
+                                <th class="text-end">Qty</th>
+                                <th class="text-end">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.LatestPurchases)
+                            {
+                                <tr>
+                                    <td>@item.Product?.Name</td>
+                                    <td>@item.Supplier?.Name</td>
+                                    <td class="text-end">@item.Quantity</td>
+                                    <td class="text-end">@item.PurchaseDate.ToShortDateString()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-inbox"></i>
+                        No purchases yet.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card section-card h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-cash-coin text-success"></i> Latest Sales
+            </div>
+            <div class="card-body p-0">
+                @if (Model.LatestSales.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-end">Qty</th>
+                                <th class="text-end">Sale Price</th>
+                                <th class="text-end">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.LatestSales)
+                            {
+                                <tr>
+                                    <td>@(item.Product?.Name ?? "No Product")</td>
+                                    <td class="text-end">@item.Quantity</td>
+                                    <td class="text-end">$@item.SalePrice.ToString("N2")</td>
+                                    <td class="text-end">@item.SaleDate.ToShortDateString()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-inbox"></i>
+                        No sales yet.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card section-card h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-bar-chart-line text-primary"></i> Products by Category
+            </div>
+            <div class="card-body">
+                <div class="chart-wrap">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const categoryNames = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CategoryNames));
+        const productCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProductCounts));
+
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'bar',
+            data: {
+                labels: categoryNames,
+                datasets: [{
+                    label: 'Products',
+                    data: productCounts,
+                    backgroundColor: '#4f46e5',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    </script>
+}

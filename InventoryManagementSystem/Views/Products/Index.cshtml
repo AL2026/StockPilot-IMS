@@ -1,0 +1,212 @@
+﻿@model InventoryManagementSystem.Models.ViewModels.PaginatedList<InventoryManagementSystem.Models.Product>
+@{
+    ViewData["Title"] = "Products";
+    var currentSort = Context.Request.Query["sortOrder"].ToString();
+    var canManage = User.IsInRole("Admin") || User.IsInRole("Inventory Manager");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-1">Products</h1>
+        <p class="text-muted mb-0">Manage your product catalog and stock levels.</p>
+    </div>
+    @if (canManage)
+    {
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>New Product
+        </a>
+    }
+</div>
+
+<div class="card section-card mb-3">
+    <div class="card-body">
+        <form asp-action="Index" method="get" class="row g-2 align-items-center">
+            <input type="hidden" name="sortOrder" value="@currentSort" />
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by name or description..." />
+                </div>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">Search</button>
+                <a asp-action="Index" class="btn btn-outline-secondary flex-fill">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card section-card">
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>
+                            <a asp-action="Index" class="sort-link"
+                               asp-route-sortOrder="@ViewData["NameSortParm"]"
+                               asp-route-searchString="@ViewData["CurrentFilter"]">
+                                Name
+                                @if (currentSort == "")
+                                {
+                                    <i class="bi bi-sort-alpha-down"></i>
+                                }
+                                else if (currentSort == "name_desc")
+                                {
+
+                                    <i class="bi bi-sort-alpha-up"></i>
+                                }
+                            </a>
+                        </th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Supplier</th>
+                        <th>
+                            <a asp-action="Index" class="sort-link"
+                               asp-route-sortOrder="@ViewData["PriceSortParm"]"
+                               asp-route-searchString="@ViewData["CurrentFilter"]">
+                                Price
+                                @if (currentSort == "Price")
+                                {
+                                    <i class="bi bi-sort-numeric-down"></i>
+                                }
+                                else if (currentSort == "price_desc")
+                                {
+
+                                    <i class="bi bi-sort-numeric-up"></i>
+                                }
+                            </a>
+                        </th>
+                        <th>
+                            <a asp-action="Index" class="sort-link"
+                               asp-route-sortOrder="@ViewData["QuantitySortParm"]"
+                               asp-route-searchString="@ViewData["CurrentFilter"]">
+                                Quantity
+                                @if (currentSort == "Quantity")
+                                {
+                                    <i class="bi bi-sort-numeric-down"></i>
+                                }
+                                else if (currentSort == "quantity_desc")
+                                {
+
+                                    <i class="bi bi-sort-numeric-up"></i>
+                                }
+                            </a>
+                        </th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td class="text-muted small">@item.Description</td>
+                            <td>@item.Category?.Name</td>
+                            <td>@item.Supplier?.Name</td>
+                            <td>$@item.Price.ToString("N2")</td>
+                            <td>
+                                @if (item.Quantity == 0)
+                                {
+                                    <span class="badge bg-secondary">Out of stock</span>
+                                }
+                                else if (item.Quantity <= 5)
+                                {
+                                    <span class="badge bg-danger">@item.Quantity (Low)</span>
+                                }
+                                else if (item.Quantity <= 10)
+                                {
+                                    <span class="badge bg-warning text-dark">@item.Quantity (Low)</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">@item.Quantity</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-secondary" title="Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                @if (canManage)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-primary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" title="Delete"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                            data-id="@item.ProductId" data-name="@item.Name">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-box-seam"></i>
+                No products found.
+            </div>
+        }
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Page @Model.PageIndex of @Model.TotalPages</span>
+            <div class="btn-group">
+                <a asp-action="Index"
+                   asp-route-sortOrder="@currentSort"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                   asp-route-page="@(Model.PageIndex - 1)"
+                   class="btn btn-outline-secondary btn-sm @(!Model.HasPreviousPage ? "disabled" : "")">
+                    <i class="bi bi-chevron-left"></i> Prev
+                </a>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@currentSort"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                   asp-route-page="@(Model.PageIndex + 1)"
+                   class="btn btn-outline-secondary btn-sm @(!Model.HasNextPage ? "disabled" : "")">
+                    Next <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-danger me-2"></i>Delete Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong id="deleteItemName"></strong>? This can't be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('deleteModal').addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            document.getElementById('deleteItemName').textContent = button.getAttribute('data-name');
+            document.getElementById('deleteForm').action = '/Products/Delete/' + button.getAttribute('data-id');
+        });
+    </script>
+}

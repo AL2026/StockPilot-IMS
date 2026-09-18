@@ -1,0 +1,88 @@
+﻿@model InventoryManagementSystem.Models.Purchase
+
+@{
+    ViewData["Title"] = "New Purchase";
+}
+
+<div class="mb-4">
+    <h1 class="h3 mb-1">New Purchase</h1>
+    <p class="text-muted mb-0">Record stock coming in from a supplier.</p>
+</div>
+
+<div class="card section-card form-card">
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly"></div>
+            <div class="mb-3">
+                <label asp-for="ProductId" class="form-label"></label>
+                @{
+                    var lastPrices = (Dictionary<int, decimal>)ViewBag.LastPurchasePrices;
+                }
+                <select asp-for="ProductId" class="form-select" id="productSelect">
+                    <option value="">-- Select Product --</option>
+                    @foreach (var product in (List<InventoryManagementSystem.Models.Product>)ViewBag.Products)
+                    {
+                        var priceAttr = lastPrices.ContainsKey(product.ProductId) ? lastPrices[product.ProductId].ToString("F2") : "";
+                        <option value="@product.ProductId" data-price="@priceAttr">@product.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="ProductId"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="SupplierId" class="form-label"></label>
+                <select asp-for="SupplierId" class="form-select" asp-items="ViewBag.SupplierId">
+                    <option value="">-- Select Supplier --</option>
+                </select>
+                <span asp-validation-for="SupplierId"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Quantity" class="form-label"></label>
+                    <input asp-for="Quantity" type="number" min="1" class="form-control" placeholder="0" />
+                    <span asp-validation-for="Quantity"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="PurchasePrice" class="form-label"></label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input asp-for="PurchasePrice" id="PurchasePrice" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
+                    </div>
+                    <span asp-validation-for="PurchasePrice"></span>
+                    <div class="form-text" id="priceHint" style="display:none;">
+                        <i class="bi bi-info-circle me-1"></i>Pre-filled from the last purchase of this product — adjust if the cost changed.
+                    </div>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label asp-for="PurchaseDate" class="form-label"></label>
+                <input asp-for="PurchaseDate" type="date" class="form-control" />
+                <span asp-validation-for="PurchaseDate"></span>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>Record Purchase
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.getElementById('productSelect').addEventListener('change', function () {
+            var selected = this.options[this.selectedIndex];
+            var price = selected.getAttribute('data-price');
+            var hint = document.getElementById('priceHint');
+            if (price) {
+                document.getElementById('PurchasePrice').value = price;
+                hint.style.display = 'block';
+            } else {
+                hint.style.display = 'none';
+            }
+        });
+    </script>
+}

@@ -1,0 +1,172 @@
+﻿@model InventoryManagementSystem.Models.ViewModels.InventoryReportViewModel
+
+@{
+    ViewData["Title"] = "Inventory Report";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Inventory Report</h1>
+        <p class="text-muted mb-0">Stock levels and value across your catalog.</p>
+    </div>
+    <a asp-action="ExportInventoryReportCsv" asp-route-searchString="@ViewData["CurrentFilter"]" class="btn btn-outline-secondary">
+        <i class="bi bi-download me-1"></i>Export CSV
+    </a>
+</div>
+
+<div class="card section-card mb-4">
+    <div class="card-body">
+        <form asp-action="InventoryReport" method="get" class="row g-2 align-items-center">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by product name..." />
+                </div>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">Search</button>
+                <a asp-action="InventoryReport" class="btn btn-outline-secondary flex-fill">Clear</a>
+            </div>
+        </form>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <button type="button" class="btn btn-sm btn-outline-secondary stock-filter active" data-filter="all">All</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary stock-filter" data-filter="low">Low Stock</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary stock-filter" data-filter="out">Out of Stock</button>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card bg-gradient-indigo">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Total Products</div>
+                    <div class="stat-value">@Model.TotalProducts</div>
+                </div>
+                <i class="bi bi-box-seam stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card bg-gradient-amber">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Low Stock</div>
+                    <div class="stat-value">@Model.LowStockProducts</div>
+                </div>
+                <i class="bi bi-exclamation-triangle stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card bg-gradient-rose">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Out of Stock</div>
+                    <div class="stat-value">@Model.OutOfStockProducts</div>
+                </div>
+                <i class="bi bi-x-circle stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-card bg-gradient-green">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Inventory Value</div>
+                    <div class="stat-value">$@Model.TotalInventoryValue.ToString("N2")</div>
+                </div>
+                <i class="bi bi-currency-dollar stat-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card section-card">
+    <div class="card-body p-0">
+        @if (Model.Products.Any())
+        {
+            <table class="table table-hover mb-0 align-middle" id="inventoryTable">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Supplier</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-end">Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Products)
+                    {
+                        var status = item.Quantity == 0 ? "out" : (item.Quantity <= 5 ? "low" : "ok");
+                        <tr data-status="@status">
+                            <td>@item.Name</td>
+                            <td>@item.Category?.Name</td>
+                            <td>@item.Supplier?.Name</td>
+                            <td class="text-end">$@item.Price.ToString("N2")</td>
+                            <td class="text-end">
+                                @if (item.Quantity == 0)
+                                {
+                                    <span class="badge bg-secondary">Out of stock</span>
+                                }
+                                else if (item.Quantity <= 5)
+                                {
+                                    <span class="badge bg-danger">@item.Quantity (Low)</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">@item.Quantity</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div id="noFilterResults" class="empty-state d-none">
+                <i class="bi bi-inbox"></i>
+                No products match this filter.
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-clipboard-data"></i>
+                No products found.
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const filterButtons = document.querySelectorAll('.stock-filter');
+        const rows = document.querySelectorAll('#inventoryTable tbody tr');
+        const noResults = document.getElementById('noFilterResults');
+
+        filterButtons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filter = btn.dataset.filter;
+                let visibleCount = 0;
+
+                rows.forEach(function (row) {
+                    const status = row.dataset.status;
+                    const show = filter === 'all'
+                        || (filter === 'low' && status === 'low')
+                        || (filter === 'out' && status === 'out');
+
+                    row.classList.toggle('d-none', !show);
+                    if (show) visibleCount++;
+                });
+
+                if (noResults) {
+                    noResults.classList.toggle('d-none', visibleCount > 0);
+                }
+            });
+        });
+    </script>
+}

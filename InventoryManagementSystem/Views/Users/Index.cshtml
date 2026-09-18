@@ -1,0 +1,85 @@
+﻿@model List<InventoryManagementSystem.Controllers.UserListItemViewModel>
+
+@{
+    ViewData["Title"] = "Users";
+    var allRoles = (List<string>)ViewBag.AllRoles;
+    var currentUserId = (string)ViewBag.CurrentUserId;
+}
+
+<div class="mb-4">
+    <h1 class="h3 mb-1">Users</h1>
+    <p class="text-muted mb-0">View every account and manage their role. Only Admins can see this page.</p>
+</div>
+
+<div class="card section-card">
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Current Role</th>
+                        <th class="text-end">Change Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>
+                                <i class="bi bi-person-circle text-muted me-2"></i>@user.UserName
+                                @if (user.UserId == currentUserId)
+                                {
+                                    <span class="badge bg-light text-dark ms-1">You</span>
+                                }
+                            </td>
+                            <td>
+                                @user.Email
+                                @if (!user.EmailConfirmed)
+                                {
+                                    <span class="badge bg-warning text-dark ms-1" title="Email not verified yet">Unverified</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @(user.CurrentRole == "Admin" ? "bg-primary" : "bg-secondary")">
+                                    @user.CurrentRole
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                @if (user.UserId == currentUserId)
+                                {
+                                    <span class="text-muted small">Can't change your own role</span>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Users" asp-action="ChangeRole" method="post" class="d-inline-flex gap-2 justify-content-end">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@user.UserId" />
+                                        <select name="newRole" class="form-select form-select-sm" style="width: auto;">
+                                            @foreach (var role in allRoles)
+                                            {
+                                                <option value="@role" selected="@(role == user.CurrentRole ? "selected" : null)">@role</option>
+                                            }
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-people"></i>
+                No users found.
+            </div>
+        }
+    </div>
+</div>

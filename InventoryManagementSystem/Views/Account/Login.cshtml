@@ -1,0 +1,52 @@
+﻿@model InventoryManagementSystem.Controllers.LoginViewModel
+
+@{
+    ViewData["Title"] = "Log In";
+    Layout = "_AuthLayout";
+}
+
+<div class="d-flex justify-content-center">
+    <div class="card section-card form-card w-100" style="max-width: 420px;">
+        <div class="card-body p-4">
+            <div class="text-center mb-4">
+                <i class="bi bi-boxes fs-1 text-primary"></i>
+                <h1 class="h4 mt-2 mb-0">Welcome back</h1>
+                <p class="text-muted small mb-0">Log in to StockPilot</p>
+            </div>
+
+            <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]">
+                <div asp-validation-summary="ModelOnly"></div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" placeholder="you@example.com" autofocus />
+                    <span asp-validation-for="Email"></span>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label asp-for="Password" class="form-label mb-0"></label>
+                        <a asp-action="ForgotPassword" class="small">Forgot password?</a>
+                    </div>
+                    <input asp-for="Password" class="form-control" placeholder="••••••••" />
+                    <span asp-validation-for="Password"></span>
+                </div>
+                <div class="mb-4 form-check">
+                    <input asp-for="RememberMe" class="form-check-input" />
+                    <label asp-for="RememberMe" class="form-check-label"></label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Log In
+                </button>
+            </form>
+
+            <p class="text-center text-muted small mt-4 mb-0">
+                Don't have an account? <a asp-action="Register">Create one</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

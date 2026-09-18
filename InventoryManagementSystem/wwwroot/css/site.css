@@ -1,0 +1,584 @@
+:root {
+    --brand-primary: #4f46e5;
+    --brand-primary-dark: #4338ca;
+    --brand-bg: #f4f6fb;
+}
+
+html, body {
+    height: 100%;
+    background-color: var(--brand-bg);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ===== App shell: sidebar + main content ===== */
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s ease;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 1030;
+}
+
+    .sidebar.collapsed {
+        width: 72px;
+    }
+
+        /* Hide text labels (but keep icons) once collapsed */
+        .sidebar.collapsed .sidebar-link-text,
+        .sidebar.collapsed .sidebar-caret,
+        .sidebar.collapsed .sidebar-brand-text {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-submenu {
+            display: none !important;
+        }
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.sidebar.collapsed .sidebar-header {
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1rem 0.5rem;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    font-size: 1.1rem;
+    min-width: 0;
+}
+
+    .sidebar-brand i {
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+.sidebar-collapse-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s ease, transform 0.2s ease;
+}
+
+    .sidebar-collapse-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+.sidebar.collapsed .sidebar-collapse-btn i {
+    transform: rotate(180deg);
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 0.75rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.sidebar.collapsed .sidebar-link,
+.sidebar.collapsed .sidebar-group-toggle {
+    justify-content: center;
+}
+
+.sidebar-link,
+.sidebar-group-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.5rem;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.92rem;
+    white-space: nowrap;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+    .sidebar-link i,
+    .sidebar-group-toggle i:first-child {
+        font-size: 1.05rem;
+        width: 20px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .sidebar-link:hover,
+    .sidebar-group-toggle:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+    }
+
+    .sidebar-link.active {
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+    }
+
+.sidebar-caret {
+    margin-left: auto;
+    font-size: 0.75rem !important;
+    width: auto !important;
+    transition: transform 0.15s ease;
+}
+
+.sidebar-group.open .sidebar-caret {
+    transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+    display: none;
+    flex-direction: column;
+    padding-left: 2.2rem;
+    gap: 0.1rem;
+    margin-top: 0.1rem;
+}
+
+.sidebar-group.open .sidebar-submenu {
+    display: flex;
+}
+
+.sidebar-sublink {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.6rem;
+    border-radius: 0.4rem;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+    .sidebar-sublink i {
+        font-size: 0.9rem;
+        width: 16px;
+        text-align: center;
+    }
+
+    .sidebar-sublink:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+/* Sticky top strip - just holds the account widget, reserves its own row so it
+   never overlaps page content (unlike the old position:fixed overlay). */
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 60px;
+    padding: 0.6rem 1.5rem;
+    background: var(--brand-bg);
+}
+
+.account-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 2rem;
+    padding: 0.3rem 1rem 0.3rem 0.3rem;
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+}
+
+    .account-toggle:hover {
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.12);
+    }
+
+    .account-toggle .account-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--brand-primary);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+    .account-toggle .account-email {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #111827;
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+/* Main content column */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.page-content {
+    flex: 1 0 auto;
+    padding: 1.5rem 2rem;
+}
+
+.app-footer {
+    flex-shrink: 0;
+}
+
+/* Mobile floating toggle (sidebar becomes an off-canvas drawer below the lg breakpoint) */
+.mobile-sidebar-toggle {
+    position: fixed;
+    top: 0.85rem;
+    left: 0.85rem;
+    z-index: 1040;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: var(--brand-primary);
+    color: #fff;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.2);
+}
+
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1020;
+}
+
+    .sidebar-backdrop.show {
+        display: block;
+    }
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+        box-shadow: 0.5rem 0 1.5rem rgba(0,0,0,0.2);
+    }
+
+        .sidebar.mobile-open {
+            transform: translateX(0);
+        }
+
+    .page-content {
+        padding: 1.25rem 1rem;
+    }
+}
+
+/* Stat cards on the dashboard */
+.stat-card {
+    border: none;
+    border-radius: 0.75rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    color: #fff;
+    overflow: hidden;
+}
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+
+    .stat-card .stat-icon {
+        font-size: 2rem;
+        opacity: 0.85;
+    }
+
+    .stat-card .stat-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+    }
+
+    .stat-card .stat-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.9;
+    }
+
+.bg-gradient-indigo {
+    background: linear-gradient(135deg, #6366f1, #4338ca);
+}
+
+.bg-gradient-teal {
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+}
+
+.bg-gradient-amber {
+    background: linear-gradient(135deg, #f59e0b, #b45309);
+}
+
+.bg-gradient-rose {
+    background: linear-gradient(135deg, #fb7185, #be123c);
+}
+
+.bg-gradient-sky {
+    background: linear-gradient(135deg, #38bdf8, #0369a1);
+}
+
+.bg-gradient-violet {
+    background: linear-gradient(135deg, #a78bfa, #6d28d9);
+}
+
+.bg-gradient-green {
+    background: linear-gradient(135deg, #4ade80, #15803d);
+}
+
+.bg-gradient-slate {
+    background: linear-gradient(135deg, #94a3b8, #475569);
+}
+
+/* General content cards */
+.card.section-card {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.06);
+}
+
+.section-card .card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #eef0f4;
+    font-weight: 600;
+}
+
+/* Fixed-height wrapper for Chart.js canvases.
+   Without this, a responsive canvas inside a flexbox/card layout can enter
+   a resize feedback loop and grow the page to several times its real height. */
+.chart-wrap {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+    .chart-wrap canvas {
+        max-width: 100%;
+    }
+
+/* Tables */
+.table thead th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #6b7280;
+    border-bottom-width: 1px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9ff;
+}
+
+.sort-link {
+    color: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+    .sort-link:hover {
+        color: var(--brand-primary);
+    }
+
+/* Empty states */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #9ca3af;
+}
+
+    .empty-state i {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+/* Forms */
+.form-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.15);
+}
+
+.input-validation-error {
+    border-color: #dc2626 !important;
+}
+
+.field-validation-error {
+    color: #dc2626;
+    font-size: 0.825rem;
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+.validation-summary-errors {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+    .validation-summary-errors ul {
+        margin-bottom: 0;
+        padding-left: 1.1rem;
+    }
+
+.form-card {
+    max-width: 640px;
+}
+
+/* Standalone auth pages (Login, Register, Forgot/Reset Password, Verify Email) -
+   no sidebar, just the form centered on the page. */
+.auth-body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--brand-bg) 0%, #eef0fb 100%);
+    padding: 1.5rem;
+}
+
+.auth-wrapper {
+    width: 100%;
+    max-width: 440px;
+}
+
+/* Home page hero */
+.hero-section {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
+    border-radius: 1rem;
+    color: #fff;
+    padding: 3.5rem 2rem;
+    text-align: center;
+}
+
+    .hero-section .hero-icon {
+        font-size: 3rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .hero-section p {
+        color: rgba(255, 255, 255, 0.9);
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+/* Home page "how it works" step icons */
+.step-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+    margin: 0 auto 0.75rem;
+}
+
+.step-arrow {
+    font-size: 1.5rem;
+    color: #cbd5e1;
+}
+
+/* Home page quick-link cards */
+.quick-link-card {
+    border: none;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.06);
+}
+
+    .quick-link-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.12);
+    }
+
+    .quick-link-card .quick-link-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: #fff;
+    }
+
+/* Custom soft badges - don't rely on Bootstrap 5.3's *-subtle/*-emphasis utilities,
+   which may not exist in older bundled Bootstrap versions and would otherwise
+   leave badge text white on a transparent background. */
+.badge-soft-primary {
+    background-color: #e0e7ff;
+    color: #3730a3;
+}
+
+.badge-soft-success {
+    background-color: #dcfce7;
+    color: #166534;
+}

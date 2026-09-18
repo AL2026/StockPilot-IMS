@@ -1,0 +1,52 @@
+﻿@model InventoryManagementSystem.Models.Supplier
+
+@{
+    ViewData["Title"] = "New Supplier";
+}
+
+<div class="mb-4">
+    <h1 class="h3 mb-1">New Supplier</h1>
+    <p class="text-muted mb-0">Add a vendor you purchase stock from.</p>
+</div>
+
+<div class="card section-card form-card">
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly"></div>
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" placeholder="e.g. Acme Supplies Co." />
+                <span asp-validation-for="Name"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Phone" class="form-label"></label>
+                    <input asp-for="Phone" type="tel" class="form-control" placeholder="+1 555 000 0000" />
+                    <span asp-validation-for="Phone"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="contact@supplier.com" />
+                    <span asp-validation-for="Email"></span>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label asp-for="Address" class="form-label"></label>
+                <textarea asp-for="Address" class="form-control" rows="2" placeholder="Optional"></textarea>
+                <span asp-validation-for="Address"></span>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>Create
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
